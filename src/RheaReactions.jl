@@ -2,7 +2,7 @@ module RheaReactions
 
 using HTTP, JSON, DocStringExtensions, ReadableRegex
 
-export get_reaction, get_metabolite
+export get_reaction, get_metabolites_of_reaction
 
 const endpoint_url = "https://sparql.rhea-db.org/sparql"
 const compound_uri = "http://rdf.rhea-db.org/compound" 
