@@ -1,4 +1,6 @@
 # RheaReactions
+[repostatus-url]: https://www.repostatus.org/#active
+[repostatus-img]: https://www.repostatus.org/badges/latest/active.svg
 
 This is a simple package you can use to query Rhea reactions:
 ```julia
@@ -12,3 +14,8 @@ And look at each metabolite individually:
 ```julia
 coeff_mets[1][2] # metabolite
 ```
+You can test the package with:
+```julia
+] test
+```
+
