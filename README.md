@@ -16,6 +16,18 @@ And look at each metabolite individually:
 ```julia
 coeff_mets[1][2] # metabolite
 ```
+You can also look for all reactions that have a certain set of metabolite
+substrates and products. This function looks for reactions that have both
+CHEBI:29985 (L-glutamate) and CHEBI:58359 (L-glutamine) to be on opposite sides
+of the reaction:
+```julia
+substrate_ids = [29985,]
+product_ids = [58359,]
+rxns = RheaReactions.get_reactions_with_metabolites(
+    substrate_ids,
+    product_ids,
+)
+```
 You can test the package with:
 ```julia
 ] test
