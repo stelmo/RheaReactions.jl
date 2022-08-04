@@ -6,7 +6,7 @@
 
 This is a simple package you can use to query Rhea reactions:
 ```julia
-rxn = get_reaction(11364) # Rhea reaction ID 11364
+get_reaction(11364) # Rhea reaction ID 11364
 ```
 You can also get the metabolites associated with that reaction:
 ```julia
@@ -23,10 +23,14 @@ of the reaction:
 ```julia
 substrate_ids = [29985,]
 product_ids = [58359,]
-rxns = RheaReactions.get_reactions_with_metabolites(
+RheaReactions.get_reactions_with_metabolites(
     substrate_ids,
     product_ids,
 )
+```
+You can also map the entire reviewed Uniprot IDs to Rhea reaction IDs, although this takes long:
+```julia
+get_uniprot_to_rhea_map()
 ```
 You can test the package with:
 ```julia

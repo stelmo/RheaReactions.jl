@@ -1,5 +1,4 @@
 @testset "PPS reaction" begin
-
     #= 
     PPS
     Phosphoenolpyruvate synthetase
@@ -21,7 +20,6 @@
 end
 
 @testset "CMP kinase reaction" begin
-
     #= 
     CMP kinase
     rhea id 11600

@@ -143,3 +143,21 @@ function get_reactions_with_metabolites(
     end
     return rr_rxns
 end
+
+"""
+$(TYPEDSIGNATURES)
+
+Return a dictionary of reactions where the ChEBI metabolite IDs in
+`substrate_ids` and `product_ids` appear on opposite sides of the reaction.
+Note, this is slow.
+"""
+function get_uniprot_to_rhea_map()
+    elements = RheaReactions._parse_request(RheaReactions._uniprot_reviewed_rhea_mapping_body())
+    uid_to_rhea = Dict{String, Vector{Int64}}()
+    for element in elements
+        uid = last(split(element["uniprot"]["value"], "/"))
+        rid = parse(Int64, last(split(element["accession"]["value"], ":")))
+        uid_to_rhea[uid] = push!(get(uid_to_rhea,uid, Int64[]), rid)
+    end
+    return uid_to_rhea
+end
