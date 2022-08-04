@@ -6,7 +6,7 @@ information.
 
 $(FIELDS)
 """
-struct RheaReaction
+mutable struct RheaReaction
     id::Int64
     equation::String
     status::String
@@ -17,20 +17,24 @@ struct RheaReaction
     isbalanced::Bool
 end
 
+RheaReaction() = RheaReaction(0, "", "", "", nothing, nothing, false, false)
+
 function Base.show(io::IO, ::MIME"text/plain", x::RheaReaction)
-    text = "" 
+    text = ""
     for fname in fieldnames(RheaReaction)
         text *= "{blue}$(string(fname)){/blue}: {purple}$(getfield(x, fname)){/purple}\n"
     end
 
-    println(io, Panel(
+    println(
+        io,
+        Panel(
             text,
-            title="Rhea ID: $(x.id)",
-            title_style="bold green",
-            style="gold1 bold",
-            fit=true,
-            justify=:left,
-        )
+            title = "Rhea ID: $(x.id)",
+            title_style = "bold green",
+            style = "gold1 bold",
+            fit = true,
+            justify = :left,
+        ),
     )
 end
 
@@ -50,26 +54,28 @@ struct RheaMetabolite
 end
 
 function Base.show(io::IO, ::MIME"text/plain", x::RheaMetabolite)
-    text = "" 
+    text = ""
     for fname in fieldnames(RheaMetabolite)
         text *= "{blue}$(string(fname)){/blue}: {purple}$(getfield(x, fname)){/purple}\n"
     end
     chebi = last(split(x.accession, "/"))
-    println(io, Panel(
+    println(
+        io,
+        Panel(
             text,
-            title="ChEBI ID: $(chebi)",
-            title_style="bold green",
-            style="gold1 bold",
-            fit=true,
-            justify=:left,
-        )
+            title = "ChEBI ID: $(chebi)",
+            title_style = "bold green",
+            style = "gold1 bold",
+            fit = true,
+            justify = :left,
+        ),
     )
 end
 
-function Base.show(io::IO, ::MIME"text/plain", x::Vector{Tuple{Float64, RheaMetabolite}})    
+function Base.show(io::IO, ::MIME"text/plain", x::Vector{Tuple{Float64,RheaMetabolite}})
     substrates = String[]
     products = String[]
-    for (coef, compound) in x 
+    for (coef, compound) in x
         if coef < 0 # substrate
             push!(substrates, "$(abs(coef)) {purple}$(compound.name){/purple}")
         else # product
@@ -78,14 +84,18 @@ function Base.show(io::IO, ::MIME"text/plain", x::Vector{Tuple{Float64, RheaMeta
     end
 
 
-    println(io, Panel(
-            join(substrates, " {blue}+{/blue} ") * " {red}={/red} " * join(products, " {blue}+{/blue} "),
-            title="Reaction scheme",
-            title_style="bold green",
-            style="gold1 bold",
-            fit=true,
-            justify=:center,
-        )
+    println(
+        io,
+        Panel(
+            join(substrates, " {blue}+{/blue} ") *
+            " {red}={/red} " *
+            join(products, " {blue}+{/blue} "),
+            title = "Reaction scheme",
+            title_style = "bold green",
+            style = "gold1 bold",
+            fit = true,
+            justify = :center,
+        ),
     )
 end
 

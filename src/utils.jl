@@ -59,7 +59,6 @@ function _parse_request(args...; kwargs...)
     RheaReactions._parse_json(JSON.parse(String(req.body)))
 end
 
-
 """
 $(TYPEDSIGNATURES)
 
@@ -68,18 +67,21 @@ Get reaction data for Rhea id `rid`. Returns a dictionary mapping URIs to values
 function get_reaction(rid::Int64)
     rxns = RheaReactions._parse_request(RheaReactions._reaction_body(rid))
     isnothing(rxns) && return nothing
-    RheaReaction(
-        parse(Int64, first(rxns)["id"]["value"]),
-        first(rxns)["eqn"]["value"],
-        first(rxns)["status"]["value"],
-        first(rxns)["acc"]["value"],
-        RheaReactions._double_get(first(rxns), "name", "value"),
-        [RheaReactions._double_get(rxn, "ec", "value") for rxn in rxns],
-        first(rxns)["istrans"]["value"] == "true",
-        first(rxns)["isbal"]["value"] == "true",
-    )
+    rxn = first(rxns)
+    rr = RheaReaction()
+    for rxn in rxns
+        rr.id = parse(Int64, rxn["id"]["value"])
+        rr.equation = rxn["eqn"]["value"]
+        rr.status = rxn["status"]["value"]
+        rr.accession = rxn["acc"]["value"]
+        rr.name = RheaReactions._double_get(rxn, "name", "value")
+        ec = RheaReactions._double_get(rxn, "ec", "value")
+        !isnothing(ec) && (rr.ec = isnothing(rr.ec) ? [ec] : push!(rr.ec, ec))
+        rr.istransport = rxn["istrans"]["value"] == "true"
+        rr.isbalanced = rxn["isbal"]["value"] == "true"
+    end
+    return rr
 end
-
 
 """
 $(TYPEDSIGNATURES)
@@ -89,7 +91,7 @@ Return the reaction metabolite data of Rhea reaction id `rid`.
 function get_reaction_metabolites(rid::Int64)
     compounds =
         RheaReactions._parse_request(RheaReactions._metabolite_stoichiometry_body(rid))
-    compound_stoichs = Vector{Tuple{Float64, RheaMetabolite}}()
+    compound_stoichs = Vector{Tuple{Float64,RheaMetabolite}}()
     for compound in compounds
         m = RheaMetabolite(
             parse(Int64, compound["id"]["value"]),
@@ -98,8 +100,46 @@ function get_reaction_metabolites(rid::Int64)
             parse(Int64, RheaReactions._double_get(compound, "charge", "value")),
             RheaReactions._double_get(compound, "formula", "value"),
         )
-        coef = parse(Float64, compound["coef"]["value"]) * (endswith(compound["SoP"]["value"], "_L") ? -1.0 : 1.0)
+        coef =
+            parse(Float64, compound["coef"]["value"]) *
+            (endswith(compound["SoP"]["value"], "_L") ? -1.0 : 1.0)
         push!(compound_stoichs, (coef, m))
     end
     return compound_stoichs
+end
+
+"""
+$(TYPEDSIGNATURES)
+
+Return a dictionary of reactions where the ChEBI metabolite IDs in
+`substrate_ids` and `product_ids` appear on opposite sides of the reaction.
+"""
+function get_reactions_with_metabolites(
+    substrate_ids::Vector{Int64},
+    product_ids::Vector{Int64},
+)
+    rxns = RheaReactions._parse_request(
+        RheaReactions._reaction_metabolite_matches_body(substrate_ids, product_ids),
+    )
+    isnothing(rxns) && return nothing
+    rr_rxns = Dict{Int64,RheaReaction}()
+    for (i,rxn) in enumerate(rxns)
+        println(i)
+        id = parse(Int64, rxn["id"]["value"])
+        if !haskey(rr_rxns, id)
+            rr_rxns[id] = RheaReaction()
+        end
+        rr = rr_rxns[id]
+
+        rr.id = parse(Int64, rxn["id"]["value"])
+        rr.equation = rxn["eqn"]["value"]
+        rr.status = rxn["status"]["value"]
+        rr.accession = rxn["acc"]["value"]
+        rr.name = RheaReactions._double_get(rxn, "name", "value")
+        ec = RheaReactions._double_get(rxn, "ec", "value")
+        !isnothing(ec) && (rr.ec = isnothing(rr.ec) ? [ec] : push!(rr.ec, ec))
+        rr.istransport = rxn["istrans"]["value"] == "true"
+        rr.isbalanced = rxn["isbal"]["value"] == "true"
+    end
+    return rr_rxns
 end

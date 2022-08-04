@@ -47,3 +47,64 @@ WHERE {
     OPTIONAL {?cmp rh:formula ?formula}.
 }
 """
+
+"""
+$(TYPEDSIGNATURES)
+
+Construct a SPARQL query that finds Rhea reactions with 
+"""
+function _reaction_metabolite_matches_body(
+    substrate_ids::Vector{Int64},
+    product_ids::Vector{Int64},
+)
+
+    substrates = join(
+        [
+            """
+            VALUES (?chebi_s$idx) { (CHEBI:$id) }
+            OPTIONAL { ?chebi_s$idx up:name ?name_s$idx} .
+            ?rhea rh:side ?reactionSide_S .
+            ?rhea rh:accession ?acc_s$idx .
+            ?reactionSide_S  rh:contains / rh:compound / rh:chebi ?chebi_s$idx .
+            """ for (idx, id) in enumerate(substrate_ids)
+        ],
+        "\n",
+    )
+
+    products = join(
+        [
+            """
+            VALUES (?chebi_p$idx) { (CHEBI:$id) }
+            OPTIONAL { ?chebi_p$idx up:name ?name_p$idx }.
+            ?rhea rh:side ?reactionSide_P .
+            ?rhea rh:accession ?acc_p$idx .
+            ?reactionSide_P  rh:contains / rh:compound / rh:chebi ?chebi_p$idx .
+            """ for (idx, id) in enumerate(product_ids)
+        ],
+        "\n",
+    )
+
+    """
+    PREFIX rh: <http://rdf.rhea-db.org/>
+    PREFIX CHEBI: <http://purl.obolibrary.org/obo/CHEBI_>
+    PREFIX up: <http://purl.uniprot.org/core/>
+    
+    SELECT *
+    WHERE {
+        $substrates
+    
+        $products
+        
+        ?reactionSide_S rh:transformableTo ?reactionSide_P .
+      
+        ?rhea rh:equation ?eqn ;
+            rh:status ?status ;
+            rh:id ?id ;
+            rh:accession ?acc .
+        OPTIONAL {?rhea rh:name ?name }.
+        OPTIONAL {?rhea rh:ec ?ec }.
+        OPTIONAL {?rhea rh:isTransport ?istrans}.
+        OPTIONAL {?rhea rh:isChemicallyBalanced ?isbal }.
+    }
+    """
+end

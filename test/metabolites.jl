@@ -12,7 +12,7 @@
     # find (H+)
     idx = findfirst(x -> x[2].name == "H(+)", coef_met)
     h = coef_met[idx][2]
-    @test h.id == 3249 
+    @test h.id == 3249
     @test h.accession == "CHEBI:15378"
     @test h.charge == 1
     @test h.formula == "H"
