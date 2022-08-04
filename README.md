@@ -10,7 +10,7 @@ rxn = get_reaction(11364) # Rhea reaction ID 11364
 ```
 You can also get the metabolites associated with that reaction:
 ```julia
-coeff_mets = get_reaction_metabolites(11364) # (coefficient, metabolite)
+coeff_mets = get_reaction_metabolites(11364) # [(coefficient, metabolite), ...] but has pretty printing that hides this structure
 ```
 And look at each metabolite individually:
 ```julia
