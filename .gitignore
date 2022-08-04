@@ -1,1 +1,7 @@
 /Manifest.toml
+
+# ignore temporary files
+temp.*
+
+# ignore rhea specifications
+data/specs/*

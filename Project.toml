@@ -3,8 +3,14 @@ uuid = "e7041bdd-cbf6-4fda-a9ae-fa15d3238eb4"
 authors = ["St. Elmo Wilken <stelmozors@gmail.com> and contributors"]
 version = "0.1.0"
 
+[deps]
+HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
+JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
+
 [compat]
-julia = "1"
+julia = "1.7, 1.8"
+HTTP = "1.2"
+JSON = "0.21"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
