@@ -66,9 +66,7 @@ function Base.show(io::IO, ::MIME"text/plain", x::RheaMetabolite)
     )
 end
 
-function Base.show(io::IO, ::MIME"text/plain", x::Vector{Tuple{Float64, RheaMetabolite}})
-    text = "" 
-    
+function Base.show(io::IO, ::MIME"text/plain", x::Vector{Tuple{Float64, RheaMetabolite}})    
     substrates = String[]
     products = String[]
     for (coef, compound) in x 

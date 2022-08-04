@@ -1,6 +1,6 @@
 module RheaReactions
 
-using HTTP, JSON, DocStringExtensions, ReadableRegex, Term
+using HTTP, JSON, DocStringExtensions, Term
 
 export get_reaction, get_reaction_metabolites, RheaReaction, RheaMetabolite
 
