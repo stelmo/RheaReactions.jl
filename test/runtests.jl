@@ -2,5 +2,5 @@ using RheaReactions
 using Test
 
 @testset "RheaReactions.jl" begin
-    # Write your tests here.
+    include("reactions.jl")
 end
