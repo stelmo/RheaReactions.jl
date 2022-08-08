@@ -14,7 +14,7 @@ function __init__()
     global cache_location = @get_scratch!("rhea_data")
 
     for dir in cache_dirs
-        !isdir(joinpath(cache_location, dir)) && mkdir(joinpath(cache_location, dir)) 
+        !isdir(joinpath(cache_location, dir)) && mkdir(joinpath(cache_location, dir))
     end
 
     if isfile(cache_location, "version.txt")

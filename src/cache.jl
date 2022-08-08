@@ -7,7 +7,8 @@ clear_cache!() = begin
     for dir in readdir(cache_location)
         rm(joinpath(cache_location, dir), recursive = true)
     end
-    isfile(joinpath(cache_location, "version.txt")) && rm(joinpath(cache_location, "version.txt"))
+    isfile(joinpath(cache_location, "version.txt")) &&
+    rm(joinpath(cache_location, "version.txt"))
 end
 
 """

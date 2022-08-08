@@ -98,7 +98,8 @@ Return the reaction metabolite data of Rhea reaction id `rid`. This function is
 cached automatically by default, use `should_cache` to change this behavior. 
 """
 function get_reaction_metabolites(rid::Int64; should_cache = true)
-    _is_cached("reaction_metabolites", rid) && return _get_cache("reaction_metabolites", rid)
+    _is_cached("reaction_metabolites", rid) &&
+        return _get_cache("reaction_metabolites", rid)
 
     compounds = _parse_request(_metabolite_stoichiometry_body(rid))
     isnothing(compounds) && return nothing
@@ -163,11 +164,12 @@ $(TYPEDSIGNATURES)
 Return a list of reactions that are associated with the Uniprot ID `uniprot_id`.
 """
 function get_reactions_with_uniprot_id(uniprot_id::String; should_cache = true)
-    _is_cached("uniprot_reactions", uniprot_id) && return _get_cache("uniprot_reactions", uniprot_id)
+    _is_cached("uniprot_reactions", uniprot_id) &&
+        return _get_cache("uniprot_reactions", uniprot_id)
 
     elements = _parse_request(_uniprot_reviewed_rhea_mapping_body(uniprot_id))
     isnothing(elements) && return nothing
-    
+
     uid_to_rhea = Int64[]
     for element in elements
         x = _double_get(element, "accession", "value")
