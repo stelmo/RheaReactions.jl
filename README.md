@@ -4,17 +4,18 @@
 
 [![repostatus-img]][repostatus-url]
 
-This is a simple package you can use to query Rhea reactions. It caches 
-simple requests by default, speeding up repeated calls where appropriate.
+This is a simple package you can use to query Rhea reactions and associated
+annoations. Its primary use is in reconstructing metabolite models. It caches
+all requests by default, speeding up repeated calls where appropriate.
 ```julia
 using RheaReactions # load module
 
-get_reaction(11364) # Rhea reaction ID 11364 (cached)
+get_reaction(11364) # Rhea reaction ID 11364
 ```
 You can also get the metabolites associated with that reaction:
 ```julia
 # pretty printing that hides this structure: [(coefficient, metabolite), ...] 
-coeff_mets = get_reaction_metabolites(11364) #  (cached)
+coeff_mets = get_reaction_metabolites(11364)
 ```
 And look at each metabolite individually:
 ```julia
@@ -30,11 +31,11 @@ product_ids = [58359,]
 get_reactions_with_metabolites(
     substrate_ids,
     product_ids,
-)
+) # NB: not cached
 ```
-You can also map the entire reviewed Uniprot IDs to Rhea reaction IDs, although this takes long:
+You can also look for Rhea reactions associated with a specific Uniprot ID:
 ```julia
-get_uniprot_to_rhea_map()
+get_reactions_with_uniprot_id("P30085")
 ```
 You can look for all Rhea reaction IDs that map to a specific EC number:
 ```julia

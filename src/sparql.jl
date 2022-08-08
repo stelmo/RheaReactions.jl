@@ -114,15 +114,13 @@ $(TYPEDSIGNATURES)
 
 Return a mapping between uniprot IDs and Rhea reaction IDs.
 """
-_uniprot_reviewed_rhea_mapping_body() = """
+_uniprot_reviewed_rhea_mapping_body(uid::String) = """
 PREFIX rh: <http://rdf.rhea-db.org/>
 PREFIX up: <http://purl.uniprot.org/core/>
 SELECT * 
 WHERE {
   SERVICE <https://sparql.uniprot.org/sparql> { 
-    ?uniprot up:reviewed true . 
-    ?uniprot up:mnemonic ?mnemo . 
-    ?uniprot up:annotation/up:catalyticActivity/up:catalyzedReaction ?rhea . 
+    <http://purl.uniprot.org/uniprot/$uid> up:annotation/up:catalyticActivity/up:catalyzedReaction ?rhea . 
   }
   ?rhea rh:accession ?accession .
 }

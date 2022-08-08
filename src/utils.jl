@@ -54,9 +54,10 @@ $(TYPEDSIGNATURES)
 Combine [`_request_data`](@ref) with [`_parse_json`](@ref).
 """
 function _parse_request(args...; kwargs...)
-    req = RheaReactions._request_data(args...; kwargs...)
+    req = _request_data(args...; kwargs...)
     isnothing(req) && return nothing
-    RheaReactions._parse_json(JSON.parse(String(req.body)))
+    preq = _parse_json(JSON.parse(String(req.body)))
+    isempty(preq) ? nothing : preq
 end
 
 """
@@ -67,9 +68,9 @@ values.  This function is cached automatically by default, use `should_cache` to
 change this behavior.
 """
 function get_reaction(rid::Int64; should_cache = true)
-    RheaReactions._is_cached_reaction(rid) && return RheaReactions._get_cached_reaction(rid)
+    _is_cached("reaction", rid) && return _get_cache("reaction", rid)
 
-    rxns = RheaReactions._parse_request(RheaReactions._reaction_body(rid))
+    rxns = _parse_request(_reaction_body(rid))
     isnothing(rxns) && return nothing
     rxn = first(rxns)
     rr = RheaReaction()
@@ -78,14 +79,14 @@ function get_reaction(rid::Int64; should_cache = true)
         rr.equation = rxn["eqn"]["value"]
         rr.status = rxn["status"]["value"]
         rr.accession = rxn["acc"]["value"]
-        rr.name = RheaReactions._double_get(rxn, "name", "value")
-        ec = RheaReactions._double_get(rxn, "ec", "value")
+        rr.name = _double_get(rxn, "name", "value")
+        ec = _double_get(rxn, "ec", "value")
         !isnothing(ec) && (rr.ec = isnothing(rr.ec) ? [ec] : push!(rr.ec, ec))
         rr.istransport = rxn["istrans"]["value"] == "true"
         rr.isbalanced = rxn["isbal"]["value"] == "true"
     end
 
-    should_cache && _cache_reaction(rid, rr)
+    should_cache && _cache("reaction", rid, rr)
 
     return rr
 end
@@ -97,10 +98,9 @@ Return the reaction metabolite data of Rhea reaction id `rid`. This function is
 cached automatically by default, use `should_cache` to change this behavior. 
 """
 function get_reaction_metabolites(rid::Int64; should_cache = true)
-    _is_cached_reaction_metabolites(rid) && return _get_cached_reaction_metabolites(rid)
+    _is_cached("reaction_metabolites", rid) && return _get_cache("reaction_metabolites", rid)
 
-    compounds =
-        RheaReactions._parse_request(RheaReactions._metabolite_stoichiometry_body(rid))
+    compounds = _parse_request(_metabolite_stoichiometry_body(rid))
     isnothing(compounds) && return nothing
 
     compound_stoichs = Vector{Tuple{Float64,RheaMetabolite}}()
@@ -108,9 +108,9 @@ function get_reaction_metabolites(rid::Int64; should_cache = true)
         m = RheaMetabolite(
             parse(Int64, compound["id"]["value"]),
             compound["acc"]["value"],
-            RheaReactions._double_get(compound, "name", "value"),
-            parse(Int64, RheaReactions._double_get(compound, "charge", "value")),
-            RheaReactions._double_get(compound, "formula", "value"),
+            _double_get(compound, "name", "value"),
+            parse(Int64, _double_get(compound, "charge", "value")),
+            _double_get(compound, "formula", "value"),
         )
         coef =
             parse(Float64, compound["coef"]["value"]) *
@@ -118,7 +118,7 @@ function get_reaction_metabolites(rid::Int64; should_cache = true)
         push!(compound_stoichs, (coef, m))
     end
 
-    should_cache && _cache_reaction_metabolites(rid, compound_stoichs)
+    should_cache && _cache("reaction_metabolites", rid, compound_stoichs)
 
     return compound_stoichs
 end
@@ -133,9 +133,7 @@ function get_reactions_with_metabolites(
     substrate_ids::Vector{Int64},
     product_ids::Vector{Int64},
 )
-    rxns = RheaReactions._parse_request(
-        RheaReactions._reaction_metabolite_matches_body(substrate_ids, product_ids),
-    )
+    rxns = _parse_request(_reaction_metabolite_matches_body(substrate_ids, product_ids))
     isnothing(rxns) && return nothing
     rr_rxns = Dict{Int64,RheaReaction}()
     for rxn in rxns
@@ -149,31 +147,36 @@ function get_reactions_with_metabolites(
         rr.equation = rxn["eqn"]["value"]
         rr.status = rxn["status"]["value"]
         rr.accession = rxn["acc"]["value"]
-        rr.name = RheaReactions._double_get(rxn, "name", "value")
-        ec = RheaReactions._double_get(rxn, "ec", "value")
+        rr.name = _double_get(rxn, "name", "value")
+        ec = _double_get(rxn, "ec", "value")
         !isnothing(ec) && (rr.ec = isnothing(rr.ec) ? [ec] : push!(rr.ec, ec))
         rr.istransport = rxn["istrans"]["value"] == "true"
         rr.isbalanced = rxn["isbal"]["value"] == "true"
     end
+
     return rr_rxns
 end
 
 """
 $(TYPEDSIGNATURES)
 
-Return a dictionary of reactions where the ChEBI metabolite IDs in
-`substrate_ids` and `product_ids` appear on opposite sides of the reaction.
-Note, this is slow.
+Return a list of reactions that are associated with the Uniprot ID `uniprot_id`.
 """
-function get_uniprot_to_rhea_map()
-    elements =
-        RheaReactions._parse_request(RheaReactions._uniprot_reviewed_rhea_mapping_body())
-    uid_to_rhea = Dict{String,Vector{Int64}}()
+function get_reactions_with_uniprot_id(uniprot_id::String; should_cache = true)
+    _is_cached("uniprot_reactions", uniprot_id) && return _get_cache("uniprot_reactions", uniprot_id)
+
+    elements = _parse_request(_uniprot_reviewed_rhea_mapping_body(uniprot_id))
+    isnothing(elements) && return nothing
+    
+    uid_to_rhea = Int64[]
     for element in elements
-        uid = last(split(element["uniprot"]["value"], "/"))
-        rid = parse(Int64, last(split(element["accession"]["value"], ":")))
-        uid_to_rhea[uid] = push!(get(uid_to_rhea, uid, Int64[]), rid)
+        x = _double_get(element, "accession", "value")
+        isnothing(x) && continue
+        push!(uid_to_rhea, parse(Int64, last(split(x, ":"))))
     end
+
+    should_cache && _cache("uniprot_reactions", uniprot_id, uid_to_rhea)
+
     return uid_to_rhea
 end
 
@@ -182,15 +185,20 @@ $(TYPEDSIGNATURES)
 
 Return a list of all Rhea reaction IDs that map to a specific EC number `ec`.
 """
-function get_reactions_with_ec(ec)
-    elements = RheaReactions._parse_request(RheaReactions._ec_rhea_mapping_body(ec))
+function get_reactions_with_ec(ec::String; should_cache = true)
+    _is_cached("ec_reactions", ec) && return _get_cache("ec_reactions", ec)
+
+    elements = _parse_request(_ec_rhea_mapping_body(ec))
     isnothing(elements) && return nothing
 
     ec_to_rheas = Int64[]
     for element in elements
-        x = RheaReactions._double_get(element, "accession", "value")
+        x = _double_get(element, "accession", "value")
         isnothing(x) && continue
         push!(ec_to_rheas, parse(Int64, last(split(x, ":"))))
     end
+
+    should_cache && _cache("ec_reactions", ec, ec_to_rheas)
+
     return ec_to_rheas
 end
