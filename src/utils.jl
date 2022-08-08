@@ -62,9 +62,13 @@ end
 """
 $(TYPEDSIGNATURES)
 
-Get reaction data for Rhea id `rid`. Returns a dictionary mapping URIs to values.
+Get reaction data for Rhea id `rid`. Returns a dictionary mapping URIs to
+values.  This function is cached automatically by default, use `should_cache` to
+change this behavior.
 """
-function get_reaction(rid::Int64)
+function get_reaction(rid::Int64; should_cache = true)
+    RheaReactions._is_cached_reaction(rid) && return RheaReactions._get_cached_reaction(rid)
+
     rxns = RheaReactions._parse_request(RheaReactions._reaction_body(rid))
     isnothing(rxns) && return nothing
     rxn = first(rxns)
@@ -80,15 +84,21 @@ function get_reaction(rid::Int64)
         rr.istransport = rxn["istrans"]["value"] == "true"
         rr.isbalanced = rxn["isbal"]["value"] == "true"
     end
+
+    should_cache && _cache_reaction(rid, rr)
+
     return rr
 end
 
 """
 $(TYPEDSIGNATURES)
 
-Return the reaction metabolite data of Rhea reaction id `rid`. 
+Return the reaction metabolite data of Rhea reaction id `rid`. This function is
+cached automatically by default, use `should_cache` to change this behavior. 
 """
-function get_reaction_metabolites(rid::Int64)
+function get_reaction_metabolites(rid::Int64; should_cache = true)
+    _is_cached_reaction_metabolites(rid) && return _get_cached_reaction_metabolites(rid)
+
     compounds =
         RheaReactions._parse_request(RheaReactions._metabolite_stoichiometry_body(rid))
     isnothing(compounds) && return nothing
@@ -107,6 +117,9 @@ function get_reaction_metabolites(rid::Int64)
             (endswith(compound["SoP"]["value"], "_L") ? -1.0 : 1.0)
         push!(compound_stoichs, (coef, m))
     end
+
+    should_cache && _cache_reaction_metabolites(rid, compound_stoichs)
+
     return compound_stoichs
 end
 

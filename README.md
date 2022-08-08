@@ -4,14 +4,17 @@
 
 [![repostatus-img]][repostatus-url]
 
-This is a simple package you can use to query Rhea reactions:
+This is a simple package you can use to query Rhea reactions. It caches 
+simple requests by default, speeding up repeated calls where appropriate.
 ```julia
-get_reaction(11364) # Rhea reaction ID 11364
+using RheaReactions # load module
+
+get_reaction(11364) # Rhea reaction ID 11364 (cached)
 ```
 You can also get the metabolites associated with that reaction:
 ```julia
 # pretty printing that hides this structure
-coeff_mets = get_reaction_metabolites(11364) # [(coefficient, metabolite), ...]
+coeff_mets = get_reaction_metabolites(11364) # [(coefficient, metabolite), ...]  (cached)
 ```
 And look at each metabolite individually:
 ```julia
