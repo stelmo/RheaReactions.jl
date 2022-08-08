@@ -127,3 +127,17 @@ WHERE {
   ?rhea rh:accession ?accession .
 }
 """
+
+_ec_rhea_mapping_body(ec::String) = """
+PREFIX rh: <http://rdf.rhea-db.org/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX ec: <http://purl.uniprot.org/enzyme/>
+
+SELECT ?ec ?rhea ?accession 
+WHERE {
+  ?rhea rdfs:subClassOf rh:Reaction .
+  ?rhea rh:accession ?accession .
+  ?rhea rh:ec ?ec;
+  rh:ec <http://purl.uniprot.org/enzyme/$ec> .
+}
+"""

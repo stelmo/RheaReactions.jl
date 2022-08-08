@@ -32,6 +32,10 @@ You can also map the entire reviewed Uniprot IDs to Rhea reaction IDs, although 
 ```julia
 get_uniprot_to_rhea_map()
 ```
+You can look for all Rhea reaction IDs that map to a specific EC number:
+```julia
+get_reactions_with_ec("2.5.1.49")
+```
 You can test the package with:
 ```julia
 ] test
