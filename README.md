@@ -1,4 +1,4 @@
-# RheaReactions
+# RheaReactions.jl
 [repostatus-url]: https://www.repostatus.org/#active
 [repostatus-img]: https://www.repostatus.org/badges/latest/active.svg
 
