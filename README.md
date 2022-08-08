@@ -10,7 +10,8 @@ get_reaction(11364) # Rhea reaction ID 11364
 ```
 You can also get the metabolites associated with that reaction:
 ```julia
-coeff_mets = get_reaction_metabolites(11364) # [(coefficient, metabolite), ...] but has pretty printing that hides this structure
+# pretty printing that hides this structure
+coeff_mets = get_reaction_metabolites(11364) # [(coefficient, metabolite), ...]
 ```
 And look at each metabolite individually:
 ```julia
@@ -23,7 +24,7 @@ of the reaction:
 ```julia
 substrate_ids = [29985,]
 product_ids = [58359,]
-RheaReactions.get_reactions_with_metabolites(
+get_reactions_with_metabolites(
     substrate_ids,
     product_ids,
 )

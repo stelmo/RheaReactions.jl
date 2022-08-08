@@ -9,6 +9,11 @@ include("types.jl")
 include("sparql.jl")
 include("utils.jl")
 
-export get_reaction, get_reaction_metabolites, RheaReaction, RheaMetabolite, get_reactions_with_ec
+export get_reaction,
+    get_reaction_metabolites,
+    RheaReaction,
+    RheaMetabolite,
+    get_reactions_with_ec,
+    get_reactions_with_metabolites
 
 end

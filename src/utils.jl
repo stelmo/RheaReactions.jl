@@ -91,7 +91,7 @@ Return the reaction metabolite data of Rhea reaction id `rid`.
 function get_reaction_metabolites(rid::Int64)
     compounds =
         RheaReactions._parse_request(RheaReactions._metabolite_stoichiometry_body(rid))
-    isnothong(compounds) && return nothing
+    isnothing(compounds) && return nothing
 
     compound_stoichs = Vector{Tuple{Float64,RheaMetabolite}}()
     for compound in compounds
@@ -125,8 +125,7 @@ function get_reactions_with_metabolites(
     )
     isnothing(rxns) && return nothing
     rr_rxns = Dict{Int64,RheaReaction}()
-    for (i,rxn) in enumerate(rxns)
-        println(i)
+    for rxn in rxns
         id = parse(Int64, rxn["id"]["value"])
         if !haskey(rr_rxns, id)
             rr_rxns[id] = RheaReaction()
@@ -154,12 +153,13 @@ Return a dictionary of reactions where the ChEBI metabolite IDs in
 Note, this is slow.
 """
 function get_uniprot_to_rhea_map()
-    elements = RheaReactions._parse_request(RheaReactions._uniprot_reviewed_rhea_mapping_body())
-    uid_to_rhea = Dict{String, Vector{Int64}}()
+    elements =
+        RheaReactions._parse_request(RheaReactions._uniprot_reviewed_rhea_mapping_body())
+    uid_to_rhea = Dict{String,Vector{Int64}}()
     for element in elements
         uid = last(split(element["uniprot"]["value"], "/"))
         rid = parse(Int64, last(split(element["accession"]["value"], ":")))
-        uid_to_rhea[uid] = push!(get(uid_to_rhea,uid, Int64[]), rid)
+        uid_to_rhea[uid] = push!(get(uid_to_rhea, uid, Int64[]), rid)
     end
     return uid_to_rhea
 end
@@ -171,12 +171,12 @@ Return a list of all Rhea reaction IDs that map to a specific EC number `ec`.
 """
 function get_reactions_with_ec(ec)
     elements = RheaReactions._parse_request(RheaReactions._ec_rhea_mapping_body(ec))
-    isnothing(elements) && return nothing 
+    isnothing(elements) && return nothing
 
     ec_to_rheas = Int64[]
     for element in elements
         x = RheaReactions._double_get(element, "accession", "value")
-        isnothing(x) && continue 
+        isnothing(x) && continue
         push!(ec_to_rheas, parse(Int64, last(split(x, ":"))))
     end
     return ec_to_rheas
