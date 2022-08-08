@@ -22,8 +22,8 @@ And look at each metabolite individually:
 coeff_mets[1][2] # metabolite
 ```
 You can also look for all reactions that have a certain set of metabolite
-substrates and products. This function looks for reactions that have both
-CHEBI:29985 (L-glutamate) and CHEBI:58359 (L-glutamine) to be on opposite sides
+substrates and products. This function looks for all reactions that have both
+CHEBI:29985 (L-glutamate) and CHEBI:58359 (L-glutamine) on opposite sides
 of the reaction:
 ```julia
 substrate_ids = [29985,]
@@ -31,7 +31,7 @@ product_ids = [58359,]
 get_reactions_with_metabolites(
     substrate_ids,
     product_ids,
-) # NB: not cached
+) # NB: not cached!
 ```
 You can also look for Rhea reactions associated with a specific Uniprot ID:
 ```julia
