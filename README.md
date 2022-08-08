@@ -5,7 +5,7 @@
 [![repostatus-img]][repostatus-url]
 
 This is a simple package you can use to query Rhea reactions and associated
-annoations. Its primary use is in reconstructing metabolite models. It caches
+annotations. Its primary use is in reconstructing metabolic models. It caches
 all requests by default, speeding up repeated calls where appropriate.
 ```julia
 using RheaReactions # load module
