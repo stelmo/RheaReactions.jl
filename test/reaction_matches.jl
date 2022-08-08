@@ -13,7 +13,27 @@
 end
 
 @testset "Reaction EC matches" begin
-    rxns = get_reactions_with_ec("2.5.1.49")
-    @test 10048 in rxns
-    @test 27822 in rxns
+    rxns = get_reactions_with_ec("2.5.1.49") 
+    @test issetequal(rxns, [10048, 27822])
+end
+
+@testset "Reaction Uniprot matches" begin 
+    rxns = get_reactions_with_uniprot_id("P30085")
+    @test issetequal(rxns, [24400, 11600, 18113, 44640, 25094])
+end
+
+@testset "Reaction quartet" begin 
+    quartet = [10736, 10737, 10738, 10739]
+
+    rxns = get_reaction_quartet(quartet[1])
+    @test issetequal(rxns, quartet)
+
+    rxns = get_reaction_quartet(quartet[2])
+    @test issetequal(rxns, quartet)
+
+    rxns = get_reaction_quartet(quartet[3])
+    @test issetequal(rxns, quartet)
+
+    rxns = get_reaction_quartet(quartet[4])
+    @test issetequal(rxns, quartet)
 end

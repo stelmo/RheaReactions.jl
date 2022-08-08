@@ -15,7 +15,7 @@ get_reaction(11364) # Rhea reaction ID 11364
 You can also get the metabolites associated with that reaction:
 ```julia
 # pretty printing that hides this structure: [(coefficient, metabolite), ...] 
-coeff_mets = get_reaction_metabolites(11364)
+coeff_mets = get_reaction_metabolites(11364) # Rhea reaction ID 11364
 ```
 And look at each metabolite individually:
 ```julia
@@ -40,6 +40,12 @@ get_reactions_with_uniprot_id("P30085")
 You can look for all Rhea reaction IDs that map to a specific EC number:
 ```julia
 get_reactions_with_ec("2.5.1.49")
+```
+Rhea reactions are typically broken into quartets.: one reference reaction, two 
+directional reactions, and one bidirectional reaction. You can find all four 
+reactions given any single reaction:
+```julia
+get_reaction_quartet(11364) # Rhea reaction ID 11364
 ```
 You can test the package with:
 ```julia

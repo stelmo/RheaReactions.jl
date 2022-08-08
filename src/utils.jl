@@ -161,6 +161,21 @@ end
 """
 $(TYPEDSIGNATURES)
 
+Return the accession number associated with each element in `elements`.
+"""
+function _get_accessions(elements)
+    xs = Int64[]
+    for element in elements
+        x = _double_get(element, "accession", "value")
+        isnothing(x) && continue
+        push!(xs, parse(Int64, last(split(x, ":"))))
+    end
+    return xs
+end
+
+"""
+$(TYPEDSIGNATURES)
+
 Return a list of reactions that are associated with the Uniprot ID `uniprot_id`.
 """
 function get_reactions_with_uniprot_id(uniprot_id::String; should_cache = true)
@@ -169,13 +184,8 @@ function get_reactions_with_uniprot_id(uniprot_id::String; should_cache = true)
 
     elements = _parse_request(_uniprot_reviewed_rhea_mapping_body(uniprot_id))
     isnothing(elements) && return nothing
-
-    uid_to_rhea = Int64[]
-    for element in elements
-        x = _double_get(element, "accession", "value")
-        isnothing(x) && continue
-        push!(uid_to_rhea, parse(Int64, last(split(x, ":"))))
-    end
+    
+    uid_to_rhea = _get_accessions(elements)
 
     should_cache && _cache("uniprot_reactions", uniprot_id, uid_to_rhea)
 
@@ -193,14 +203,43 @@ function get_reactions_with_ec(ec::String; should_cache = true)
     elements = _parse_request(_ec_rhea_mapping_body(ec))
     isnothing(elements) && return nothing
 
-    ec_to_rheas = Int64[]
-    for element in elements
-        x = _double_get(element, "accession", "value")
-        isnothing(x) && continue
-        push!(ec_to_rheas, parse(Int64, last(split(x, ":"))))
-    end
+    ec_to_rheas = _get_accessions(elements)
 
     should_cache && _cache("ec_reactions", ec, ec_to_rheas)
 
     return ec_to_rheas
+end
+
+
+"""
+$(TYPEDSIGNATURES)
+
+Return a list of the reference, directional (x2), and bidirectional reactions
+associated with `rid`. This is useful if you want to find the reactions 
+catalyzing the same transformation, but with different directions.
+"""
+function get_reaction_quartet(rid::Int64; should_cache = true)
+    _is_cached("quartet", rid) && return _get_cache("quartet", rid)
+
+    ref_solution = -1
+    
+    elements = RheaReactions._parse_request(RheaReactions._from_directional_reaction(rid))
+    if !isnothing(elements)
+        ref_solution = first(RheaReactions._get_accessions(elements))
+    end
+
+    elements = RheaReactions._parse_request(RheaReactions._from_bidirectional_reaction(rid))
+    if !isnothing(elements)
+        ref_solution = first(RheaReactions._get_accessions(elements))
+    end
+    
+    ref_solution = ref_solution == -1 ? rid : ref_solution
+    
+    elements = RheaReactions._parse_request(RheaReactions._from_reference_reaction(ref_solution))
+    other_rxns = RheaReactions._get_accessions(elements)
+    quartet = [ref_solution; other_rxns] 
+
+    should_cache && _cache("quartet", rid, quartet)
+    
+    return quartet
 end

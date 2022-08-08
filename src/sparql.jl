@@ -4,12 +4,6 @@ SPARQL queries
 Thanks Mirek for helping!
 =#
 
-"""
-$(TYPEDSIGNATURES)
-
-Construct a SPARQL query for retrieving reaction information of reaction `rid`,
-which is the Rhea ID.
-"""
 _reaction_body(rid::Int64) = """
 PREFIX rh: <http://rdf.rhea-db.org/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -26,12 +20,6 @@ WHERE {
 }
 """
 
-"""
-$(TYPEDSIGNATURES)
-
-Construct a SPARQL query for retrieving the metabolites involved with reaction
-`rid`, which is the Rhea ID.
-"""
 _metabolite_stoichiometry_body(rid::Int64) = """
 PREFIX rh: <http://rdf.rhea-db.org/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -48,11 +36,6 @@ WHERE {
 }
 """
 
-"""
-$(TYPEDSIGNATURES)
-
-Construct a SPARQL query that finds Rhea reactions with 
-"""
 function _reaction_metabolite_matches_body(
     substrate_ids::Vector{Int64},
     product_ids::Vector{Int64},
@@ -109,11 +92,6 @@ function _reaction_metabolite_matches_body(
     """
 end
 
-"""
-$(TYPEDSIGNATURES)
-
-Return a mapping between uniprot IDs and Rhea reaction IDs.
-"""
 _uniprot_reviewed_rhea_mapping_body(uid::String) = """
 PREFIX rh: <http://rdf.rhea-db.org/>
 PREFIX up: <http://purl.uniprot.org/core/>
@@ -137,5 +115,41 @@ WHERE {
   ?rhea rh:accession ?accession .
   ?rhea rh:ec ?ec;
   rh:ec <http://purl.uniprot.org/enzyme/$ec> .
+}
+"""
+
+_from_directional_reaction(rid::Int64) = """
+PREFIX rh: <http://rdf.rhea-db.org/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT *
+WHERE {
+    ?rxn rh:directionalReaction rh:$rid .
+    ?rxn rh:accession ?accession .
+}
+"""
+
+_from_bidirectional_reaction(rid::Int64) = """
+PREFIX rh: <http://rdf.rhea-db.org/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT *
+WHERE {
+    ?rxn rh:bidirectionalReaction rh:$rid .
+    ?rxn rh:accession ?accession .
+}
+"""
+
+_from_reference_reaction(rid::Int64) = """
+PREFIX rh: <http://rdf.rhea-db.org/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT *
+WHERE {
+    {
+        rh:$rid rh:directionalReaction ?rxn .
+        ?rxn rh:accession ?accession .
+    }
+    UNION {
+        rh:$rid rh:bidirectionalReaction ?rxn .
+        ?rxn rh:accession ?accession .
+    }
 }
 """
