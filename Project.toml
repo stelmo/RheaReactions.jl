@@ -1,7 +1,7 @@
 name = "RheaReactions"
 uuid = "e7041bdd-cbf6-4fda-a9ae-fa15d3238eb4"
 authors = ["St. Elmo Wilken <stelmozors@gmail.com> and contributors"]
-version = "0.4.0"
+version = "0.5.0"
 
 [deps]
 DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
