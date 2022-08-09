@@ -72,17 +72,18 @@ function Base.show(io::IO, ::MIME"text/plain", x::RheaMetabolite)
     )
 end
 
-function Base.show(io::IO, ::MIME"text/plain", x::Vector{Tuple{Float64,RheaMetabolite}})
+function Base.show(io::IO, ::MIME"text/plain", x::Vector{Tuple{Float64, RheaMetabolite}})
     substrates = String[]
     products = String[]
     for (coef, compound) in x
         if coef < 0 # substrate
             push!(substrates, "$(abs(coef)) {purple}$(compound.name){/purple}")
-        else # product
+        elseif coef > 0 # product
             push!(products, "$(abs(coef)) {purple}$(compound.name){/purple}")
+        else # fallback
+            push!(products, "? {purple}$(compound.name){/purple}")
         end
     end
-
 
     println(
         io,

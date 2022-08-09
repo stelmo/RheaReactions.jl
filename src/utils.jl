@@ -96,18 +96,34 @@ $(TYPEDSIGNATURES)
 
 Return the reaction metabolite data of Rhea reaction id `rid`. This function is
 cached automatically by default, use `should_cache` to change this behavior. 
+
+Note, charge defaults to `nothing` if an unexpected input is encountered.
+Likewise, the stoichiometric coefficient defaults to `999` if a non-numeric
+input is encountered. It does not return `nothing`, since the coefficient is
+also used to store if the metabolite is a substrate or product. These cases crop
+up with polymeric reactions. 
 """
 function get_reaction_metabolites(rid::Int64; should_cache = true)
     _is_cached("reaction_metabolites", rid) &&
         return _get_cache("reaction_metabolites", rid)
 
-    compounds = RheaReactions._parse_request(RheaReactions._metabolite_stoichiometry_body(rid))
+    rids = get_reaction_quartet(rid)
+    compounds = []
+    for rid in rids # the sparql query only works with the reference reaction, not the directional ones
+        compounds = RheaReactions._parse_request(RheaReactions._metabolite_stoichiometry_body(rid))
+        !isnothing(compounds) && break
+    end
+
     isnothing(compounds) && return nothing
 
-    compound_stoichs = Vector{Tuple{Float64,RheaMetabolite}}()
+    compound_stoichs = Vector{Tuple{Float64, RheaMetabolite}}();
     for compound in compounds
         _charge = RheaReactions._double_get(compound, "charge", "value") # could be nothing
-        charge = isnothing(_charge) ? nothing : parse(Int64, _charge) 
+        #= 
+        Polymeric compounds return charge as a function of n, ignore these.
+        This implementation then assumes the charge of a compound is never higher/lower than ±9.
+        =#
+        charge = isnothing(_charge) || length(_charge) != 1 ? nothing : parse(Int64, _charge) 
         m = RheaMetabolite(
             parse(Int64, compound["id"]["value"]),
             compound["acc"]["value"],
@@ -115,9 +131,12 @@ function get_reaction_metabolites(rid::Int64; should_cache = true)
             charge,
             RheaReactions._double_get(compound, "formula", "value"),
         )
-        coef =
-            parse(Float64, compound["coef"]["value"]) *
-            (endswith(compound["SoP"]["value"], "_L") ? -1.0 : 1.0)
+        #=
+        If coefficient is N or N+1, then return 999 with the sign denoting substrate or product. 
+        =#
+        _coef = startswith("N", compound["coef"]["value"]) ? "999" : compound["coef"]["value"]         
+        coef = parse(Float64, _coef) * (endswith(compound["SoP"]["value"], "_L") ? -1.0 : 1.0)
+        
         push!(compound_stoichs, (coef, m))
     end
 
