@@ -101,17 +101,19 @@ function get_reaction_metabolites(rid::Int64; should_cache = true)
     _is_cached("reaction_metabolites", rid) &&
         return _get_cache("reaction_metabolites", rid)
 
-    compounds = _parse_request(_metabolite_stoichiometry_body(rid))
+    compounds = RheaReactions._parse_request(RheaReactions._metabolite_stoichiometry_body(rid))
     isnothing(compounds) && return nothing
 
     compound_stoichs = Vector{Tuple{Float64,RheaMetabolite}}()
     for compound in compounds
+        _charge = RheaReactions._double_get(compound, "charge", "value") # could be nothing
+        charge = isnothing(_charge) ? nothing : parse(Int64, _charge) 
         m = RheaMetabolite(
             parse(Int64, compound["id"]["value"]),
             compound["acc"]["value"],
-            _double_get(compound, "name", "value"),
-            parse(Int64, _double_get(compound, "charge", "value")),
-            _double_get(compound, "formula", "value"),
+            RheaReactions._double_get(compound, "name", "value"),
+            charge,
+            RheaReactions._double_get(compound, "formula", "value"),
         )
         coef =
             parse(Float64, compound["coef"]["value"]) *
