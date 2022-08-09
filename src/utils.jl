@@ -137,7 +137,7 @@ function get_reaction_metabolites(rid::Int64; should_cache = true)
         Polymeric compounds return charge as a function of n, ignore these.
         This implementation then assumes the charge of a compound is never higher/lower than ±9.
         =#
-        charge = isnothing(_charge) || length(_charge) != 1 ? nothing : parse(Int64, _charge) 
+        charge = isnothing(_charge) || length(_charge) > 2 ? nothing : parse(Int64, _charge) 
         m = RheaMetabolite(
             parse(Int64, compound["id"]["value"]),
             accession,
