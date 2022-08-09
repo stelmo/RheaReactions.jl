@@ -30,6 +30,10 @@ WHERE {
     ?contains rh:coefficient ?coef .
     ?cmp rh:id ?id ; 
         rh:accession ?acc .
+    OPTIONAL {?cmp rh:reactivePart ?rp .
+            ?rp rh:formula ?rpformula ;
+            rh:charge ?rpcharge ;
+            rh:chebi ?rpchebi .} .
     OPTIONAL {?cmp rh:charge ?charge}.
     OPTIONAL {?cmp rh:name ?name}. 
     OPTIONAL {?cmp rh:formula ?formula}.

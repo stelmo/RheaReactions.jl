@@ -97,11 +97,16 @@ $(TYPEDSIGNATURES)
 Return the reaction metabolite data of Rhea reaction id `rid`. This function is
 cached automatically by default, use `should_cache` to change this behavior. 
 
-Note, charge defaults to `nothing` if an unexpected input is encountered.
-Likewise, the stoichiometric coefficient defaults to `999` if a non-numeric
-input is encountered. It does not return `nothing`, since the coefficient is
-also used to store if the metabolite is a substrate or product. These cases crop
-up with polymeric reactions. 
+# Note 
+
+Charge defaults to `nothing` if an unexpected input is encountered. Likewise,
+the stoichiometric coefficient defaults to `999` if a non-numeric input is
+encountered. It does not return `nothing`, since the coefficient is also used to
+store if the metabolite is a substrate or product. These cases crop up with
+polymeric reactions. 
+
+Some compounds are GENERIC, strip the reactive part from these and report the
+reactive part's ChEBI, charge, and formula.
 """
 function get_reaction_metabolites(rid::Int64; should_cache = true)
     _is_cached("reaction_metabolites", rid) &&
@@ -118,7 +123,16 @@ function get_reaction_metabolites(rid::Int64; should_cache = true)
 
     compound_stoichs = Vector{Tuple{Float64, RheaMetabolite}}();
     for compound in compounds
-        _charge = RheaReactions._double_get(compound, "charge", "value") # could be nothing
+        #=
+        If compound ID is GENERIC:xxx then assume only the reactive part "counts".
+        Strip out the ChEBI ID, charge, and formula from the reactive part.
+        =#
+        id = compound["acc"]["value"]
+        charge_id = startswith(id, "GENERIC") ? "rpcharge" : "charge"
+        formula_id = startswith(id, "GENERIC") ? "rpformula" : "formula"
+        accession = startswith(id, "GENERIC") ? last(split(replace(compound["rpchebi"]["value"], "_" => ":"),"/")) : id
+
+        _charge = RheaReactions._double_get(compound, charge_id, "value") # could be nothing
         #= 
         Polymeric compounds return charge as a function of n, ignore these.
         This implementation then assumes the charge of a compound is never higher/lower than ±9.
@@ -126,15 +140,15 @@ function get_reaction_metabolites(rid::Int64; should_cache = true)
         charge = isnothing(_charge) || length(_charge) != 1 ? nothing : parse(Int64, _charge) 
         m = RheaMetabolite(
             parse(Int64, compound["id"]["value"]),
-            compound["acc"]["value"],
+            accession,
             RheaReactions._double_get(compound, "name", "value"),
             charge,
-            RheaReactions._double_get(compound, "formula", "value"),
+            RheaReactions._double_get(compound, formula_id, "value"),
         )
         #=
         If coefficient is N or N+1, then return 999 with the sign denoting substrate or product. 
         =#
-        _coef = startswith("N", compound["coef"]["value"]) ? "999" : compound["coef"]["value"]         
+        _coef = startswith(compound["coef"]["value"], "N") ? "999" : compound["coef"]["value"]         
         coef = parse(Float64, _coef) * (endswith(compound["SoP"]["value"], "_L") ? -1.0 : 1.0)
         
         push!(compound_stoichs, (coef, m))
