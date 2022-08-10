@@ -51,4 +51,9 @@ You can test the package with:
 ```julia
 ] test
 ```
+### Troubleshooting
+The cache can be source of subtle issues. If you get errors or unexpected behavior do:
+1. `clear_cache!()`,
+2. Restart the Julia session.
+If you still get errors, please file an issue!
 

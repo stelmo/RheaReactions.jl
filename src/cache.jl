@@ -9,6 +9,7 @@ clear_cache!() = begin
     end
     isfile(joinpath(cache_location, "version.txt")) &&
     rm(joinpath(cache_location, "version.txt"))
+    Term.tprint("{blue} Cache cleared! {/blue}")
 end
 
 """
