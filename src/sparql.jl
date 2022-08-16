@@ -102,7 +102,7 @@ PREFIX up: <http://purl.uniprot.org/core/>
 SELECT * 
 WHERE {
   SERVICE <https://sparql.uniprot.org/sparql> { 
-    <http://purl.uniprot.org/uniprot/$uid> up:annotation/up:catalyticActivity/up:catalyzedReaction ?rhea . 
+    <http://purl.uniprot.org/uniprot/$(escape_string(uid))> up:annotation/up:catalyticActivity/up:catalyzedReaction ?rhea . 
   }
   ?rhea rh:accession ?accession .
 }
@@ -118,7 +118,7 @@ WHERE {
   ?rhea rdfs:subClassOf rh:Reaction .
   ?rhea rh:accession ?accession .
   ?rhea rh:ec ?ec;
-  rh:ec <http://purl.uniprot.org/enzyme/$ec> .
+  rh:ec <http://purl.uniprot.org/enzyme/$(escape_string(ec))> .
 }
 """
 
