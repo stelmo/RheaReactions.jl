@@ -242,7 +242,7 @@ function get_reactions_with_ec(ec::String; should_cache = true)
 
     should_cache && _cache("ec_reactions", ec, ec_to_rheas)
 
-    return ec_to_rheas
+    return unique(ec_to_rheas)
 end
 
 
