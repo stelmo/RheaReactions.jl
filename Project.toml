@@ -1,7 +1,7 @@
 name = "RheaReactions"
 uuid = "e7041bdd-cbf6-4fda-a9ae-fa15d3238eb4"
 authors = ["St. Elmo Wilken <stelmozors@gmail.com> and contributors"]
-version = "0.6.0"
+version = "0.6.1"
 
 [deps]
 DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
@@ -13,11 +13,11 @@ Term = "22787eb5-b846-44ae-b979-8e399b8463ab"
 
 [compat]
 DocStringExtensions = "0.9"
-HTTP = "1.2"
+HTTP = "1"
 JSON = "0.21"
-Scratch = "1.1"
-Term = "1.0.2"
-julia = "1.8"
+Scratch = "1"
+Term = "2"
+julia = "1"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
