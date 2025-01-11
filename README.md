@@ -2,7 +2,15 @@
 [repostatus-url]: https://www.repostatus.org/#active
 [repostatus-img]: https://www.repostatus.org/badges/latest/active.svg
 
-[![repostatus-img]][repostatus-url]
+[ci-img]: https://github.com/stelmo/RheaReactions.jl/workflows/CI/badge.svg
+[ci-url]: https://github.com/stelmo/RheaReactions.jl/actions/workflows/ci.yml
+
+[cov-img]: https://codecov.io/gh/stelmo/RheaReactions.jl/branch/master/graph/badge.svg?token=R71TrrfMmS
+[cov-url]: https://codecov.io/gh/stelmo/RheaReactions.jl
+
+| **Tests** | **Coverage** | **Project status** |
+|:---:|:---:|:---:|
+| [![CI status][ci-img]][ci-url] | [![codecov][cov-img]][cov-url] | [![repostatus-img]][repostatus-url] |
 
 This is a simple package you can use to query Rhea reactions and associated
 annotations. Its primary use is in reconstructing metabolic models. It caches
