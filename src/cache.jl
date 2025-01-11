@@ -8,7 +8,7 @@ clear_cache!() = begin
         rm(joinpath(CACHE_LOCATION, dir), recursive = true)
         dir != "version.txt" && mkdir(joinpath(CACHE_LOCATION, dir)) # add back the empty dir
     end
-    write(joinpath(CACHE_LOCATION, "version.txt"), string(Base.VERSION))    
+    write(joinpath(CACHE_LOCATION, "version.txt"), string(Base.VERSION))
     Term.tprint("{blue} Cache cleared! {/blue}")
 end
 

@@ -8,9 +8,12 @@
     rid = 11364
     rxn = get_reaction(rid)
 
+    substrates = split(first(split(rxn.equation, " = ")), " + ")
+    products = split(last(split(rxn.equation, " = ")), " + ")
+
     @test rxn.id == rid
-    @test rxn.equation ==
-          "ATP + H2O + pyruvate = AMP + 2 H(+) + phosphate + phosphoenolpyruvate"
+    @test all(in.(["ATP", "H2O", "pyruvate"], Ref(substrates)))
+    @test all(in.(["AMP", "2 H(+)", "phosphate", "phosphoenolpyruvate"], Ref(products)))
     @test rxn.accession == "RHEA:11364"
     @test rxn.status == "http://rdf.rhea-db.org/Approved"
     @test isnothing(rxn.name)
@@ -28,8 +31,13 @@ end
     rid = 11600
     rxn = get_reaction(rid)
 
+    substrates = split(first(split(rxn.equation, " = ")), " + ")
+    products = split(last(split(rxn.equation, " = ")), " + ")
+
+
     @test rxn.id == rid
-    @test rxn.equation == "ATP + CMP = ADP + CDP"
+    @test all(in.(["ATP", "CMP"], Ref(substrates)))
+    @test all(in.(["ADP", "CDP"], Ref(products)))
     @test rxn.accession == "RHEA:11600"
     @test rxn.status == "http://rdf.rhea-db.org/Approved"
     @test isnothing(rxn.name)

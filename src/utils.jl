@@ -115,13 +115,14 @@ function get_reaction_metabolites(rid::Int64; should_cache = true)
     rids = get_reaction_quartet(rid)
     compounds = []
     for rid in rids # the sparql query only works with the reference reaction, not the directional ones
-        compounds = RheaReactions._parse_request(RheaReactions._metabolite_stoichiometry_body(rid))
+        compounds =
+            RheaReactions._parse_request(RheaReactions._metabolite_stoichiometry_body(rid))
         !isnothing(compounds) && break
     end
 
     isnothing(compounds) && return nothing
 
-    compound_stoichs = Vector{Tuple{Float64, RheaMetabolite}}();
+    compound_stoichs = Vector{Tuple{Float64,RheaMetabolite}}()
     for compound in compounds
         #=
         If compound ID is GENERIC:xxx then assume only the reactive part "counts".
@@ -130,14 +131,16 @@ function get_reaction_metabolites(rid::Int64; should_cache = true)
         id = compound["acc"]["value"]
         charge_id = startswith(id, "GENERIC") ? "rpcharge" : "charge"
         formula_id = startswith(id, "GENERIC") ? "rpformula" : "formula"
-        accession = startswith(id, "GENERIC") ? last(split(replace(compound["rpchebi"]["value"], "_" => ":"),"/")) : id
+        accession =
+            startswith(id, "GENERIC") ?
+            last(split(replace(compound["rpchebi"]["value"], "_" => ":"), "/")) : id
 
         _charge = RheaReactions._double_get(compound, charge_id, "value") # could be nothing
         #= 
         Polymeric compounds return charge as a function of n, ignore these.
         This implementation then assumes the charge of a compound is never higher/lower than ±9.
         =#
-        charge = isnothing(_charge) || length(_charge) > 2 ? nothing : parse(Int64, _charge) 
+        charge = isnothing(_charge) || length(_charge) > 2 ? nothing : parse(Int64, _charge)
         m = RheaMetabolite(
             parse(Int64, compound["id"]["value"]),
             accession,
@@ -148,9 +151,11 @@ function get_reaction_metabolites(rid::Int64; should_cache = true)
         #=
         If coefficient is N or N+1, then return 999 with the sign denoting substrate or product. 
         =#
-        _coef = startswith(compound["coef"]["value"], "N") ? "999" : compound["coef"]["value"]         
-        coef = parse(Float64, _coef) * (endswith(compound["SoP"]["value"], "_L") ? -1.0 : 1.0)
-        
+        _coef =
+            startswith(compound["coef"]["value"], "N") ? "999" : compound["coef"]["value"]
+        coef =
+            parse(Float64, _coef) * (endswith(compound["SoP"]["value"], "_L") ? -1.0 : 1.0)
+
         push!(compound_stoichs, (coef, m))
     end
 
@@ -219,7 +224,7 @@ function get_reactions_with_uniprot_id(uniprot_id::String; should_cache = true)
 
     elements = _parse_request(_uniprot_reviewed_rhea_mapping_body(uniprot_id))
     isnothing(elements) && return nothing
-    
+
     uid_to_rhea = _get_accessions(elements)
 
     should_cache && _cache("uniprot_reactions", uniprot_id, uid_to_rhea)
@@ -257,7 +262,7 @@ function get_reaction_quartet(rid::Int64; should_cache = true)
     _is_cached("quartet", rid) && return _get_cache("quartet", rid)
 
     ref_solution = -1
-    
+
     elements = RheaReactions._parse_request(RheaReactions._from_directional_reaction(rid))
     if !isnothing(elements)
         ref_solution = first(RheaReactions._get_accessions(elements))
@@ -267,14 +272,15 @@ function get_reaction_quartet(rid::Int64; should_cache = true)
     if !isnothing(elements)
         ref_solution = first(RheaReactions._get_accessions(elements))
     end
-    
+
     ref_solution = ref_solution == -1 ? rid : ref_solution
-    
-    elements = RheaReactions._parse_request(RheaReactions._from_reference_reaction(ref_solution))
+
+    elements =
+        RheaReactions._parse_request(RheaReactions._from_reference_reaction(ref_solution))
     other_rxns = RheaReactions._get_accessions(elements)
-    quartet = [ref_solution; other_rxns] 
+    quartet = [ref_solution; other_rxns]
 
     should_cache && _cache("quartet", rid, quartet)
-    
+
     return quartet
 end
