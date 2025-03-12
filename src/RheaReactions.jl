@@ -8,8 +8,7 @@ CACHE_LOCATION::String = ""
 Update these cache directories, this is where each cache type gets stored.
 These directories are saved to in e.g. _cache("reaction", rid, rr) in utils.jl
 =#
-const CACHE_DIRS =
-    ["reactions", "metabolites"]
+const CACHE_DIRS = ["reactions", "metabolites"]
 
 function __init__()
     global CACHE_LOCATION = @get_scratch!("rhea_data")
@@ -41,11 +40,7 @@ include("utils.jl")
 include("reactions.jl")
 include("metabolites.jl")
 
-export clear_cache!, 
-    get_reaction,
-    get_reactions,
-    get_metabolite,
-    get_metabolites
+export clear_cache!, get_reaction, get_reactions, get_metabolite, get_metabolites
 
 
 end

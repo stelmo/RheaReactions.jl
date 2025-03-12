@@ -9,7 +9,9 @@
 
     rxns = RheaReactions.get_reactions(rids)
     @test length(rxns) == 4
-    
+
+    rxn1 = RheaReactions.get_reaction(rids[1])
+
     #= 
     PPS
     Phosphoenolpyruvate synthetase
@@ -24,7 +26,11 @@
     @test all(in.(["AMP", "2 H(+)", "phosphate", "phosphoenolpyruvate"], Ref(substrates)))
     @test rxn.stoichiometry["15378"] == 2
     @test rxn.stoichiometry["30616"] == -1
-    
+
+    @test rxn1.id == rxn.id
+    @test rxn.stoichiometry["15378"] == rxn1.stoichiometry["15378"]
+    @test rxn.stoichiometry["30616"] == rxn.stoichiometry["30616"]
+
     #= 
     L-methionine (S)-S-oxide reductase
     rhea id 19996
@@ -63,7 +69,7 @@
     @test all(in.(["2 Fe(II)-[cytochrome c]", "3 H(+)"], Ref(products)))
     @test rxn.stoichiometry["15378"] == 3
     @test rxn.stoichiometry["29033"] == 2
-    
+
 end
 
 @testset "Metabolites" begin
@@ -80,7 +86,7 @@ end
     @test fe2.inchikey == "CWYNVVGOOAEACU-UHFFFAOYSA-N"
     @test fe2.smiles == "[Fe++]"
 
-    mets = RheaReactions.get_metabolites(["15377","50058"])
+    mets = RheaReactions.get_metabolites(["15377", "50058"])
     @test length(mets) == 2
     @test mets[2].formula == "C6H8N2O2S2"
 end

@@ -9,10 +9,10 @@ $(FIELDS)
 @with_repr mutable struct RheaReaction
     id::String # rhea ID
     equation::Maybe{String}
-    stoichiometry::Dict{String, Float64} # chebi id => coefficient
+    stoichiometry::Dict{String,Float64} # chebi id => coefficient
 end
 
-RheaReaction(id) = RheaReaction(id, nothing, Dict{String, Float64}())
+RheaReaction(id) = RheaReaction(id, nothing, Dict{String,Float64}())
 
 """
 $(TYPEDEF)
@@ -31,4 +31,5 @@ $(FIELDS)
     smiles::Maybe{String}
 end
 
-RheaMetabolite(id) = RheaMetabolite(id, nothing, nothing, nothing, nothing, nothing, nothing)
+RheaMetabolite(id) =
+    RheaMetabolite(id, nothing, nothing, nothing, nothing, nothing, nothing)

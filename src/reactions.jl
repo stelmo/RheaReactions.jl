@@ -30,30 +30,39 @@ WHERE {
 """
 $(TYPEDSIGNATURES)
 
-Return a dictionary of [`RheaReaction`](@ref)s. Implicitly cache metabolites.
+Return a vector of [`RheaReaction`](@ref)s. Implicitly cache metabolites.
 """
-function get_reactions(rids)
+function get_reactions(rids; verbose = true)
 
     rrs = RheaReactions.RheaReaction[]
-    append!(rrs, [get_cache("reactions", x) for x in rids if RheaReactions.is_cached("reactions", x)])
+    append!(
+        rrs,
+        [
+            get_cache("reactions", x) for
+            x in rids if RheaReactions.is_cached("reactions", x)
+        ],
+    )
 
     uncached_rids = [x for x in rids if !RheaReactions.is_cached("reactions", x)]
     isempty(uncached_rids) && begin
-        Term.tprintln("{purple} Exclusively using cache... {/purple}")
+        verbose && Term.tprintln("{purple} Exclusively using cache... {/purple}")
         return rrs
     end
 
     rxns = RheaReactions.parse_request(RheaReactions.reactions_body(uncached_rids))
     isnothing(rxns) && return nothing
 
-    rdict = Dict{String, RheaReactions.RheaReaction}()
-    mdict = Dict{String, RheaReactions.RheaMetabolite}()
+    rdict = Dict{String,RheaReactions.RheaReaction}()
+    mdict = Dict{String,RheaReactions.RheaMetabolite}()
     for rxn in rxns
         rid = RheaReactions.terminus(rxn["rhea"]["value"])
         rr = get!(rdict, rid, RheaReactions.RheaReaction(rid))
         rr.equation = RheaReactions.double_get(rxn, "eq", "value")
-        chebi = RheaReactions.terminus(rxn["chebi"]["value"],"_")
-        rr.stoichiometry[chebi] = get(rr.stoichiometry, chebi, 0) + (RheaReactions.terminus(rxn["side"]["value"], "_") == "R" ? 1.0 : -1.0) * parse(Int, rxn["coeff"]["value"])
+        chebi = RheaReactions.terminus(rxn["chebi"]["value"], "_")
+        rr.stoichiometry[chebi] =
+            get(rr.stoichiometry, chebi, 0) +
+            (RheaReactions.terminus(rxn["side"]["value"], "_") == "R" ? 1.0 : -1.0) *
+            parse(Int, rxn["coeff"]["value"])
 
         if !haskey(mdict, chebi)
             rm = get!(mdict, chebi, RheaReactions.RheaMetabolite(chebi))
@@ -65,16 +74,17 @@ function get_reactions(rids)
             rm.smiles = RheaReactions.double_get(rxn, "smiles", "value")
         end
     end
-    
+
     for (k, v) in rdict
         RheaReactions.cache("reactions", k, v)
         push!(rrs, v)
     end
     for (k, v) in mdict
-        RheaReactions.is_cached("metabolites", k) || RheaReactions.cache("metabolites", k, v)
+        RheaReactions.is_cached("metabolites", k) ||
+            RheaReactions.cache("metabolites", k, v)
     end
 
     rrs
 end
 
-get_reaction(rid) = get_reactions([rid,])
+get_reaction(rid; kwargs...) = first(get_reactions([rid]; kwargs...))
