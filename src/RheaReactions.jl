@@ -39,8 +39,9 @@ include("cache.jl")
 include("utils.jl")
 include("reactions.jl")
 include("metabolites.jl")
+include("quartets.jl")
 
-export clear_cache!, get_reaction, get_reactions, get_metabolite, get_metabolites
+export clear_cache!, get_reaction, get_reactions, get_metabolite, get_metabolites, get_quartet, get_quartets
 
 
 end
