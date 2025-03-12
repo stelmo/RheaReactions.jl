@@ -37,7 +37,6 @@ const endpoint_url = "https://sparql.rhea-db.org/sparql"
 
 include("types.jl")
 include("cache.jl")
-include("sparql.jl")
 include("utils.jl")
 include("reactions.jl")
 include("metabolites.jl")

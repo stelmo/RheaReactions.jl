@@ -1,4 +1,4 @@
-@testset "PPS reaction" begin
+@testset "Reactions" begin
 
     rids = [
         11366
@@ -31,8 +31,8 @@
     [thioredoxin]-disulfide + L-methionine + H2O <=> L-methionine (S)-S-oxide + [thioredoxin]-dithiol
     =#
     rxn = rxns[findfirst(x -> x.id == "19996", rxns)]
-    substrates = split(first(split(rxn.equation, " = ")), " + ")
-    products = split(last(split(rxn.equation, " = ")), " + ")
+    substrates = split(first(split(rxn.equation, " <=> ")), " + ")
+    products = split(last(split(rxn.equation, " <=> ")), " + ")
     @test all(in.(["[thioredoxin]-disulfide", "L-methionine", "H2O"], Ref(substrates)))
     @test all(in.(["L-methionine (S)-S-oxide", "[thioredoxin]-dithiol"], Ref(products)))
     @test rxn.stoichiometry["50058"] == -1
@@ -60,7 +60,7 @@
     substrates = split(first(split(rxn.equation, " => ")), " + ")
     products = split(last(split(rxn.equation, " => ")), " + ")
     @test all(in.(["2 Fe(III)-[cytochrome c]", "trimethylamine"], Ref(substrates)))
-    @test all(in.(["Fe(II)-[cytochrome c]", "3 H(+)"], Ref(products)))
+    @test all(in.(["2 Fe(II)-[cytochrome c]", "3 H(+)"], Ref(products)))
     @test rxn.stoichiometry["15378"] == 3
     @test rxn.stoichiometry["29033"] == 2
     
@@ -81,6 +81,6 @@ end
     @test fe2.smiles == "[Fe++]"
 
     mets = RheaReactions.get_metabolites(["15377","50058"])
-    @test mets == 2
+    @test length(mets) == 2
     @test mets[2].formula == "C6H8N2O2S2"
 end
