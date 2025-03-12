@@ -5,3 +5,5 @@ temp.*
 
 # ignore rhea specifications
 data/specs/*
+
+rhea_rdf_documentation.pdf
