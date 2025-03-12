@@ -7,17 +7,12 @@ information.
 $(FIELDS)
 """
 @with_repr mutable struct RheaReaction
-    id::Int64
-    equation::String
-    status::String
-    accession::String
-    name::Maybe{String}
-    ec::Maybe{Vector{String}} # multiple ECs can be assigned to a single reaction
-    istransport::Bool
-    isbalanced::Bool
+    id::String # rhea ID
+    equation::Maybe{String}
+    stoichiometry::Dict{String, Float64} # chebi id => coefficient
 end
 
-RheaReaction() = RheaReaction(0, "", "", "", nothing, nothing, false, false)
+RheaReaction(id) = RheaReaction(id, nothing, Dict{String, Float64}())
 
 """
 $(TYPEDEF)
@@ -26,11 +21,14 @@ A struct for storing Rhea metabolite information.
 
 $(FIELDS)
 """
-@with_repr struct RheaMetabolite
-    id::Int64
-    accession::String
+@with_repr mutable struct RheaMetabolite
+    id::String # chebi ID
     name::Maybe{String}
     charge::Maybe{Int64}
     formula::Maybe{String}
+    inchi::Maybe{String}
+    inchikey::Maybe{String}
+    smiles::Maybe{String}
 end
 
+RheaMetabolite(id) = RheaMetabolite(id, nothing, nothing, nothing, nothing, nothing, nothing)

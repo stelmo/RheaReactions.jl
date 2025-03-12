@@ -9,7 +9,7 @@ Update these cache directories, this is where each cache type gets stored.
 These directories are saved to in e.g. _cache("reaction", rid, rr) in utils.jl
 =#
 const CACHE_DIRS =
-    ["reaction", "reaction_metabolites", "uniprot_reactions", "ec_reactions", "quartet"]
+    ["reactions", "metabolites"]
 
 function __init__()
     global CACHE_LOCATION = @get_scratch!("rhea_data")
@@ -39,13 +39,14 @@ include("types.jl")
 include("cache.jl")
 include("sparql.jl")
 include("utils.jl")
+include("reactions.jl")
+include("metabolites.jl")
 
-export get_reaction,
-    get_reaction_metabolites,
-    get_reactions_with_ec,
-    get_reactions_with_metabolites,
-    get_reactions_with_uniprot_id,
-    get_reaction_quartet,
-    clear_cache!
+export clear_cache!, 
+    get_reaction,
+    get_reactions,
+    get_metabolite,
+    get_metabolites
+
 
 end
