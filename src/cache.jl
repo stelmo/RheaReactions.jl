@@ -17,7 +17,7 @@ $(TYPEDSIGNATURES)
 
 Checks if the reaction has been cached.
 """
-_is_cached(database::String, id) =
+is_cached(database::String, id) =
     isfile(joinpath(RheaReactions.CACHE_LOCATION, database, string(id)))
 
 """
@@ -25,7 +25,7 @@ $(TYPEDSIGNATURES)
 
 Return the cached reaction object.
 """
-_get_cache(database::String, id) =
+get_cache(database::String, id) =
     deserialize(joinpath(CACHE_LOCATION, database, string(id)))
 
 """
@@ -33,5 +33,5 @@ $(TYPEDSIGNATURES)
 
 Cache reaction object.
 """
-_cache(database::String, id, item) =
+cache(database::String, id, item) =
     serialize(joinpath(CACHE_LOCATION, database, string(id)), item)
