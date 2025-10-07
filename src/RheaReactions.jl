@@ -1,9 +1,10 @@
 module RheaReactions
 
-using HTTP, JSON, DocStringExtensions, Term, Scratch, Serialization
+using HTTP, JSON, DocStringExtensions, Scratch, Serialization
 
 # cache data using Scratch.jl
 CACHE_LOCATION::String = ""
+
 #=
 Update these cache directories, this is where each cache type gets stored.
 These directories are saved to in e.g. _cache("reaction", rid, rr) in utils.jl
@@ -20,11 +21,7 @@ function __init__()
     if isfile(joinpath(CACHE_LOCATION, "version.txt"))
         vnum = read(joinpath(CACHE_LOCATION, "version.txt"))
         if String(vnum) != string(Base.VERSION)
-            Term.tprint("""
-                        {red} Caching uses Julia's serializer, which is incompatible
-                        between different versions of Julia. Please clear the cache with
-                        `clear_cache!()` before proceeding. {/red}
-                        """)
+            @warn "Caching uses Julia's serializer, which is incompatible between different versions of Julia. Please clear the cache with `clear_cache!()` before proceeding."
         end
     else
         write(joinpath(CACHE_LOCATION, "version.txt"), string(Base.VERSION))

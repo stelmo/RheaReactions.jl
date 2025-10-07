@@ -45,7 +45,7 @@ function get_reactions(rids; verbose = true)
 
     uncached_rids = [x for x in rids if !RheaReactions.is_cached("reactions", x)]
     isempty(uncached_rids) && begin
-        verbose && Term.tprintln("{purple} Exclusively using cache... {/purple}")
+        verbose && @info "Exclusively using cache"
         return rrs
     end
 

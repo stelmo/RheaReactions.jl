@@ -6,7 +6,7 @@ information.
 
 $(FIELDS)
 """
-@with_repr mutable struct RheaReaction
+mutable struct RheaReaction
     id::String # rhea ID
     equation::Maybe{String}
     stoichiometry::Dict{String,Float64} # chebi id => coefficient
@@ -21,7 +21,7 @@ A struct for storing Rhea metabolite information.
 
 $(FIELDS)
 """
-@with_repr mutable struct RheaMetabolite
+mutable struct RheaMetabolite
     id::String # chebi ID
     name::Maybe{String}
     charge::Maybe{Int64}
