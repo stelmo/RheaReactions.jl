@@ -32,9 +32,9 @@ $(TYPEDSIGNATURES)
 
 Return a vector of [`RheaReaction`](@ref)s. Implicitly cache metabolites.
 """
-function get_reactions(rids; verbose = true)
+function get_reactions(rids)
     rids = string.(rids)
-    
+
     rrs = RheaReactions.RheaReaction[]
     append!(
         rrs,
@@ -45,11 +45,8 @@ function get_reactions(rids; verbose = true)
     )
 
     uncached_rids = [x for x in rids if !RheaReactions.is_cached("reactions", x)]
-    isempty(uncached_rids) && begin
-        verbose && @info "Exclusively using cache"
-        return rrs
-    end
-
+    isempty(uncached_rids) && return rrs
+    
     rxns = RheaReactions.parse_request(RheaReactions.reactions_body(uncached_rids))
     isnothing(rxns) && return nothing
 
