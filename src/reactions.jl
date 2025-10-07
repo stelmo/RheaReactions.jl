@@ -33,7 +33,8 @@ $(TYPEDSIGNATURES)
 Return a vector of [`RheaReaction`](@ref)s. Implicitly cache metabolites.
 """
 function get_reactions(rids; verbose = true)
-
+    rids = string.(rids)
+    
     rrs = RheaReactions.RheaReaction[]
     append!(
         rrs,
@@ -80,8 +81,7 @@ function get_reactions(rids; verbose = true)
         push!(rrs, v)
     end
     for (k, v) in mdict
-        RheaReactions.is_cached("metabolites", k) ||
-            RheaReactions.cache("metabolites", k, v)
+        RheaReactions.is_cached("metabolites", k) || RheaReactions.cache("metabolites", k, v)
     end
 
     rrs
