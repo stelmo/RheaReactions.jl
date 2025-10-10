@@ -46,7 +46,7 @@ function get_reactions(rids)
 
     uncached_rids = [x for x in rids if !RheaReactions.is_cached("reactions", x)]
     isempty(uncached_rids) && return rrs
-    
+
     rxns = RheaReactions.parse_request(RheaReactions.reactions_body(uncached_rids))
     isnothing(rxns) && return nothing
 
@@ -78,7 +78,8 @@ function get_reactions(rids)
         push!(rrs, v)
     end
     for (k, v) in mdict
-        RheaReactions.is_cached("metabolites", k) || RheaReactions.cache("metabolites", k, v)
+        RheaReactions.is_cached("metabolites", k) ||
+            RheaReactions.cache("metabolites", k, v)
     end
 
     rrs
