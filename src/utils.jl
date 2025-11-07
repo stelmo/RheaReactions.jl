@@ -66,3 +66,11 @@ $(TYPEDSIGNATURES)
 Get the last part of a path.
 """
 terminus(p::String, d = "/") = String(last(split(p, d)))
+
+"""
+$(TYPEDSIGNATURES)
+
+Get the version of Julia that was used to generate the serialized files.
+"""
+getserializedversion() = String(read(joinpath(CACHE_LOCATION, "version.txt")))
+
