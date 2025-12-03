@@ -21,7 +21,8 @@ function __init__()
     if isfile(joinpath(CACHE_LOCATION, "version.txt"))
         vnum = read(joinpath(CACHE_LOCATION, "version.txt"))
         if String(vnum) != string(Base.VERSION)
-            @warn "Caching uses Julia's serializer, which is incompatible between different versions of Julia. Please clear the cache with `clear_cache!()` before proceeding."
+            @warn "Caching uses Julia's serializer, which may be incompatible between different versions of Julia. Clearing the cache as a precaution."
+            clear_cache!()
         end
     else
         write(joinpath(CACHE_LOCATION, "version.txt"), string(Base.VERSION))
